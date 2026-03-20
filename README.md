@@ -1,39 +1,43 @@
-# OS HW3 – Multi-Client TCP Chat Server
+# TCP Multi-Client Chat Server in C
 
-Operating Systems course (TAU) – Homework 3.
+A real-time multi-client chat application built in C using POSIX sockets and pthreads.  
+Supports up to 100 simultaneous clients, broadcast messaging, and private whisper messages.
 
-## Overview
+## Architecture
 
-A multi-client TCP chat server and client in C using POSIX sockets and pthreads. The server accepts multiple simultaneous connections and relays messages between clients. Each client connection is handled in a dedicated thread.
+- **Server** — thread-per-client model; each connection gets a dedicated pthread
+- **Client** — two threads: one for sending (keyboard input), one for receiving (server messages)
+- **Mutex-protected** client table prevents race conditions on the shared client list
 
-**Key features:**
-- TCP socket server supporting up to 100 concurrent clients
-- Per-client pthread handler
+## Features
+
+- Broadcast: messages sent to all connected clients
+- Whisper: private messages via `@username message`
 - Graceful `SIGPIPE` handling for dropped connections
-- Separate client program with send/receive threads
-
-## Files
-
-| File | Description |
-|------|-------------|
-| `hw3server.c` | Server: accepts connections, manages client table, broadcasts messages |
-| `hw3client.c` | Client: connects to server, sends/receives messages |
-| `hw3.h` | Shared constants, socket helpers, and error-check macro |
-| `Makefile` | Build system |
-| `solution.pdf` | Written solution document |
+- Up to 100 concurrent clients
 
 ## Build & Run
-
 ```bash
 make
 ```
 
 Start the server:
 ```bash
-./server <port>
+./hw3server <port>
 ```
 
 Connect a client:
 ```bash
-./client <server-ip> <port> <name>
+./hw3client <server-ip> <port> <name>
+```
+
+## Example
+```
+./hw3server 8080
+
+./hw3client 127.0.0.1 8080 Alice
+./hw3client 127.0.0.1 8080 Bob
+
+Alice: hello everyone
+Bob: @Alice hey, private message!
 ```
